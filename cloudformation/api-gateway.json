@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion":"2010-09-09",
-  "Description":"ClourFormation Template for sounds.glolabs.com to restrict access.",
+  "Description":"ClourFormation Template for sounds.glolabs.com to restrict access by API key.",
   "Parameters":{
 
     "EnvironmentType" : {
