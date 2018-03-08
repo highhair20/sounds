@@ -12,7 +12,7 @@ app = Flask(__name__)
 def get_stations():
     re={'status': 'success'}
 
-    tag = 'with an unkown tag'
+    tag = 'with an unknown tag'
     if (request.args.get('tag')):
         tag = 'Version ' + request.args.get('tag')
     product = 'An unknown product'
@@ -23,7 +23,8 @@ def get_stations():
     # example message 'M2M Server Version 1.18.55 has been released.'
     tts = gTTS(text=message, lang='en')
     tts.save('sound.mp3')
-    os.system('mplayer -ao alsa:device=hw=0,0 -really-quiet -speed 1.25 -af scaletempo -noconsolecontrols sound.mp3')    
+    os.system('mplayer -ao alsa:device=hw=0,0 -really-quiet -speed 1.25 -af scaletempo -noconsolecontrols sound.mp3')
+    os.system('mplayer -ao alsa:device=hw=0,0 -really-quiet -speed 1.25 -af scaletempo -noconsolecontrols ./sounds/smb_commit.mp3')
 
     return jsonify(re)
     
