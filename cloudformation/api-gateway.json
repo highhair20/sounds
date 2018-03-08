@@ -16,46 +16,10 @@
       "Default" : "192.168.1.42",
       "Type" : "String",
       "ConstraintDescription" : "You must specify the public IP address of the controller."
-    },
+    }
   },
   
   "Resources":{
-
-    "SoundsProxyRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "RoleName" : { "Fn::Join" : [ "-", [ "SoundsProxyRole", {"Ref" : "EnvironmentType"} ] ] },
-        "Policies": [ {
-           "PolicyName": { "Fn::Join" : [ "-", [ "SoundsEventPolicy", {"Ref" : "EnvironmentType"} ] ] },
-           "PolicyDocument": {
-              "Version" : "2012-10-17",
-              "Statement": [ {
-                 "Effect": "Allow",
-                  "Action": [
-                    "s3:Get*"
-                  ],
-                  "Resource": [
-                    { "Fn::Join" : [ ":", [ "arn:aws:s3::", {"Ref" : "TargetBucket"} ] ] },
-                    { "Fn::Join" : [ "/", [ { "Fn::Join" : [ ":", [ "arn:aws:s3::", {"Ref" : "TargetBucket"} ] ] }, "*" ] ] }
-                  ]
-              } ]
-            }
-          } 
-        ],
-        "AssumeRolePolicyDocument": {
-          "Version" : "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [ "apigateway.amazonaws.com" ]
-              },
-              "Action": [ "sts:AssumeRole" ]
-            }]
-        },
-        "Path": "/"
-      }
-    },
     
     "SoundsProxyGroup" : {
        "Type" : "AWS::IAM::Group",
@@ -77,15 +41,7 @@
        }
     },
     
-    "SoundsProxyAccessKey" : {
-      "Type" : "AWS::IAM::AccessKey",
-      "Properties" : {
-        "UserName" : { "Ref" : "SoundsProxyUser" }
-      }
-    },
-    
     "SoundsProxyApi" : {
-      "DependsOn" : "SoundsProxyRole",
       "Type" : "AWS::ApiGateway::RestApi",
       "Properties" : {  
         "Body" : {
@@ -102,20 +58,25 @@
             "/say": {
               "get": {
                 "responses": {},
+                "security": [
+                  {
+                    "api_key": []
+                  }
+                ],
                 "x-amazon-apigateway-integration": {
                   "responses": {
                     "default": {
                       "statusCode": "200"
                     }
                   },
-                  "uri": "http://66.214.6.50:9000/say",
+                  "uri": { "Fn::Join" : [ "", [ "http://", {"Ref":"ControllerPublicIP"}, ":9000/say" ] ] },
                   "passthroughBehavior": "when_no_match",
                   "httpMethod": "GET",
                   "type": "http_proxy"
                 }
               }
             },
-          ,}
+          },
           "securityDefinitions": {
             "api_key": {
               "type": "apiKey",
@@ -198,17 +159,7 @@
   },
 
   "Outputs": {
-    "AccessKey" : {
-      "Description" : "The access key used to authenticate requests to the API Gateway.",
-      "Value" :  { "Ref" : "SoundsProxyAccessKey" },
-      "Export" : { "Name" : "AccessKey" }
-    },
-    "SecretAccessKey" : {
-      "Description" : "The access key secret used to authenticate requests to the API Gateway.",
-      "Value" :  { "Fn::GetAtt" : [ "SoundsProxyAccessKey", "SecretAccessKey" ] },
-      "Export" : { "Name" : "SecretAccessKey" }
-    }
-    
+
   }
 
 }
